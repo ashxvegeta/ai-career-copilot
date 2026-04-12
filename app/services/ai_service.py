@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 import json
+import re
 
 load_dotenv()
 _client = None
@@ -18,6 +19,22 @@ def _get_client() -> OpenAI:
         )
     _client = OpenAI(api_key=api_key)
     return _client
+
+
+def clean_json_response(content: str):
+    # Remove extra spaces and newlines
+    content = content.strip()
+
+    # Remove markdown ```json ```
+    # Remove markdown wrappers if they exist (some models wrap JSON in markdown)
+    content = re.sub(r"```json|```", "", content).strip()
+
+    # Extract only JSON part if extra text exists
+    match = re.search(r"\{.*\}", content, re.DOTALL)
+    if match:
+        return match.group(0)
+
+    return content
 
 
 def analyze_resume_content(resume_text: str):
@@ -45,6 +62,8 @@ def analyze_resume_content(resume_text: str):
     )
 
     content = response.choices[0].message.content
+    # 🔥 ADD THIS LINE (same as job_match)
+    content = clean_json_response(content)
 
     try:
         return json.loads(content)
@@ -64,10 +83,13 @@ def match_with_job_description(resume: str, job: str):
     Job:
     {job}
 
-    Return ONLY valid JSON:
+    IMPORTANT:
+    - Return ONLY valid JSON
+    - Do NOT wrap in markdown (no ```)
+    - match_score must be an integer between 0 and 100
 
     {{
-        "match_score": 0,
+        "match_score": 65,
         "missing_skills": ["skill1"],
         "suggestions": ["suggestion1"]
     }}
@@ -81,6 +103,9 @@ def match_with_job_description(resume: str, job: str):
     )
 
     content = response.choices[0].message.content
+
+    # 🔥 ADD THIS (you were missing this)
+    content = clean_json_response(content)
 
     try:
         return json.loads(content)
