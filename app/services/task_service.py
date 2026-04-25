@@ -42,3 +42,25 @@ def mark_task_completed(task_id: int):
         db.rollback()
         print("Error marking task as completed:", e)
         return {"error": "An error occurred while updating the task"}
+    
+
+def get_all_tasks():
+    db = SessionLocal()
+
+    try:
+        tasks = db.query(Task).all()
+
+        result = []
+        for t in tasks:
+            result.append({
+                "id": t.id,
+                "user_id": t.user_id,
+                "skill": t.skill_name,
+                "task": t.task_text,
+                "status": t.status
+            })
+
+        return result
+
+    finally:
+        db.close()
