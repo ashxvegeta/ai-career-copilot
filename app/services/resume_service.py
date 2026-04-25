@@ -4,7 +4,7 @@ from app.services.ai_service import (
     generate_tasks_for_skills,
     generate_career_roadmap 
 )
-
+from app.services.task_service import save_tasks
 def analyze_resume(data):
 
     resume_text = data.resume_text
@@ -17,6 +17,7 @@ def analyze_resume(data):
     # Step 3 🔥 NEW
     missing_skills = job_match.get("missing_skills", [])
     tasks = generate_tasks_for_skills(missing_skills)
+    save_tasks(user_id=1, tasks_dict=tasks)
     # Step 4 🔥 NEW
     roadmap = generate_career_roadmap(tasks)
 
