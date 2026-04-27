@@ -64,3 +64,23 @@ def get_all_tasks():
 
     finally:
         db.close()
+
+def get_task_progress(user_id: int):
+    db = SessionLocal()
+
+    try:
+        total = db.query(Task).filter(Task.user_id == user_id).count()
+        completed = db.query(Task).filter(Task.user_id == user_id, Task.status == "completed").count()
+        pending = total - completed
+
+        progress = (completed / total) * 100 if total > 0 else 0
+
+        return {
+            "total_tasks": total,
+            "completed_tasks": completed,
+            "pending_tasks": pending,
+            "progress_percentage": progress
+        }
+
+    finally:
+        db.close()

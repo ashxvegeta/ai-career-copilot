@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.services.task_service import mark_task_completed,get_all_tasks
+from app.services.task_service import mark_task_completed,get_all_tasks,get_task_progress
 
 router = APIRouter()
 
@@ -11,3 +11,7 @@ def complete_task(task_id: int):
 @router.get("/tasks")
 def fetch_tasks():
     return get_all_tasks()
+
+@router.get("/tasks/progress")
+def task_progress(user_id: int):
+    return get_task_progress(user_id)
