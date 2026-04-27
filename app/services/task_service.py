@@ -44,11 +44,11 @@ def mark_task_completed(task_id: int):
         return {"error": "An error occurred while updating the task"}
     
 
-def get_all_tasks():
+def get_all_tasks(user_id: int):
     db = SessionLocal()
 
     try:
-        tasks = db.query(Task).all()
+        tasks = db.query(Task).filter(Task.user_id == user_id).all()
 
         result = []
         for t in tasks:
