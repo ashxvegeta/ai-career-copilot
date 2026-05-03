@@ -84,3 +84,16 @@ def get_task_progress(user_id: int):
 
     finally:
         db.close()
+
+
+def get_user_tasks(user_id: int):
+
+    db = SessionLocal()
+
+    try:
+        tasks = db.query(Task).filter(Task.user_id == user_id).all()
+
+        return tasks
+
+    finally:
+        db.close()
