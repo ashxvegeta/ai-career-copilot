@@ -5,6 +5,9 @@ from app.services.ai_service import (
     generate_career_roadmap 
 )
 from app.services.task_service import save_tasks
+from app.database.models import AnalysisHistory
+from app.database.db import SessionLocal
+import json
 def analyze_resume(data, user_id):
 
     resume_text = data.resume_text
@@ -21,9 +24,22 @@ def analyze_resume(data, user_id):
     # Step 4 🔥 NEW
     roadmap = generate_career_roadmap(tasks)
 
-    return {
+    result = {
         "analysis": analysis,
         "job_match": job_match,
         "tasks": tasks,
         "roadmap": roadmap
     }
+
+    db = SessionLocal()
+    history  = AnalysisHistory(
+        user_id=user_id,
+        resume_text=resume_text,
+        job_description=job_desc,
+        analysis_result=json.dumps(result)
+    )
+    db.add(history)
+    db.commit()
+    db.close()
+
+    return result
